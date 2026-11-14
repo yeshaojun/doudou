@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#faf8f0">
+  <meta name="description" content="来糯米的小小世界，摸摸头、玩逗猫棒，陪一只软乎乎的小猫度过悠闲的午后。">
+  <title>糯米的小小世界</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="糯米的小小世界首页"><svg viewBox="0 0 36 36" aria-hidden="true"><ellipse cx="18" cy="24" rx="9" ry="7"/><ellipse cx="7" cy="15" rx="4" ry="5" transform="rotate(-25 7 15)"/><ellipse cx="15" cy="9" rx="4" ry="5" transform="rotate(-8 15 9)"/><ellipse cx="24" cy="10" rx="4" ry="5" transform="rotate(18 24 10)"/><ellipse cx="30" cy="18" rx="3.5" ry="4.5" transform="rotate(30 30 18)"/></svg><span>糯米的小小世界<small>A LITTLE WORLD WITH NUOMI</small></span></a>
+      <button id="theme-button" class="theme-button" aria-label="切换到夜晚" aria-pressed="false" title="换个时间"><svg class="sun-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg><svg class="moon-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.2A8.7 8.7 0 0 1 9.8 4 8.8 8.8 0 1 0 20 14.2Z"/></svg></button>
+    </header>
+    <main>
+      <div class="intro"><span class="eyebrow"><span></span> 一小团温柔，正在等你</span><h1>嗨，我是<span>糯米</span><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3l3.5 9.5L29 16l-9.5 3.5L16 29l-3.5-9.5L3 16l9.5-3.5Z"/></svg></h1><p>今天，也想和你一起慢慢长大。</p></div>
+      <section class="playground" aria-label="和小猫糯米互动">
+        <div class="floating-note note-left" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M39 13C20 5 8 23 19 32c9 6 20-5 13-12-6-5-15 3-9 9M19 36l-2 7m0 0 8-2m-8 2-5-6"/></svg><span>摸摸我的小脑袋</span></div>
+        <div class="speech" id="speech" aria-hidden="true">你好呀，来摸摸我吧 <span>♡</span></div>
+        <svg id="scene" class="scene" viewBox="0 0 800 540" aria-labelledby="scene-title scene-desc">
+          <title id="scene-title">奶油橘色的小猫糯米</title><desc id="scene-desc">移动鼠标或手指，小猫会看向你。轻点或抚摸脑袋，小猫会开心地眯眼。也可以用下方按钮逗猫和让它睡觉。</desc>
+          <defs>
+            <radialGradient id="fur" cx="45%" cy="24%" r="85%"><stop offset="0" stop-color="#f7dbab"/><stop offset=".68" stop-color="#edc18b"/><stop offset="1" stop-color="#dca773"/></radialGradient>
+            <linearGradient id="body-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#f5d6a1"/><stop offset="1" stop-color="#e7b77f"/></linearGradient>
+            <radialGradient id="white-fur" cx="50%" cy="15%" r="85%"><stop stop-color="#fffdf3"/><stop offset="1" stop-color="#f9ecd5"/></radialGradient>
+            <radialGradient id="blush"><stop stop-color="#ef9b8c" stop-opacity=".65"/><stop offset="1" stop-color="#ef9b8c" stop-opacity="0"/></radialGradient>
+            <radialGradient id="eye" cx="45%" cy="30%" r="80%"><stop stop-color="#705244"/><stop offset="1" stop-color="#392f2b"/></radialGradient>
+            <filter id="ground-blur"><feGaussianBlur stdDeviation="5"/></filter>
+          </defs>
+          <g class="sky-details" aria-hidden="true"><g class="day-sun"><circle cx="150" cy="114" r="27" fill="#f3d78c"/><g stroke="#e6ca83" stroke-width="2.5" stroke-linecap="round"><path d="M150 74v-7m0 94v-7m40-40h7m-94 0h7m11-29-5-5m63 63 5 5m-63-5-5 5m63-63 5-5"/></g></g><g class="night-moon"><path d="M166 85a30 30 0 1 0 20 46 29 29 0 0 1-20-46" fill="#f3dda2"/><path d="M618 109v12m-6-6h12M219 174v8m-4-4h8M581 197v10m-5-5h10" stroke="#e8d7b5" stroke-width="2.5" stroke-linecap="round"/></g><path class="cloud cloud-one" d="M215 104c-16 0-16-19-2-21 2-23 36-24 43-5 23-4 29 25 9 26Z" fill="#fffdf8"/><path class="cloud cloud-two" d="M578 149c-15 0-16-18-1-19 4-21 31-22 39-4 22-3 26 23 8 23Z" fill="#fffdf8"/></g>
+          <ellipse class="rug" cx="401" cy="452" rx="286" ry="57" fill="#e6e9da"/>
+          <ellipse class="rug-stitch" cx="401" cy="452" rx="267" ry="45" fill="none" stroke="#cbd1bb" stroke-width="1.2" stroke-dasharray="3 7"/>
+          <g class="plants" fill="none" stroke="#9fae8f" stroke-width="3" stroke-linecap="round"><path d="M173 437q-9-35 8-61m-7 45q-25-5-26-24 24 1 26 24m1-16q23-6 23-23-20 1-23 23M632 434q6-29-6-47m5 31q18-1 20-18-19-1-20 18"/><path d="M200 458q-7-12-5-25" stroke="#a0b092"/><g transform="translate(195 429)" fill="#fffdf4" stroke="none"><ellipse ry="10" rx="5" cy="-7"/><ellipse ry="10" rx="5" cy="-7" transform="rotate(72)"/><ellipse ry="10" rx="5" cy="-7" transform="rotate(144)"/><ellipse ry="10" rx="5" cy="-7" transform="rotate(216)"/><ellipse ry="10" rx="5" cy="-7" transform="rotate(288)"/><circle r="5" fill="#e9ca7a"/></g></g>
+          <ellipse id="cat-shadow" cx="405" cy="448" rx="125" ry="19" fill="#b4ae8e" opacity=".26" filter="url(#ground-blur)"/>
+          <g id="cat">
+            <g id="tail" style="transform-origin:493px 397px"><path d="M490 398c64 21 121 2 111-47-6-28-35-29-38-5" fill="none" stroke="#dca673" stroke-width="46" stroke-linecap="round"/><path d="M490 393c64 21 119 3 107-46-5-18-22-20-27-4" fill="none" stroke="#edc28e" stroke-width="35" stroke-linecap="round"/><path d="M598 365l-28-5m18 31-29-13m-4 30-11-28" fill="none" stroke="#cf9c69" stroke-width="11" opacity=".55"/></g>
+            <g id="body-breathe"><path d="M325 306c-22 35-35 80-27 114 9 35 184 39 204 0 14-28-7-91-33-117Z" fill="url(#body-fur)" stroke="#c49b70" stroke-width="1.5"/><path d="M357 337c-31 29-36 70-22 90 23 22 93 26 124-1 14-25-4-69-28-88Z" fill="url(#white-fur)"/>
+              <g id="paw-left" style="transform-origin:326px 381px"><path d="M320 367c-17 11-29 47-18 65 7 10 29 9 36 1 11-15 6-47-3-61" fill="url(#fur)" stroke="#c49b70" stroke-width="1.5"/><path d="M301 420c9-11 31-11 39 1l-1 11c-8 10-31 10-37-1" fill="#fff5e2"/><path d="M313 426v6m13-6v7" stroke="#d3ba98" stroke-width="2" stroke-linecap="round"/></g>
+              <g id="paw-right" style="transform-origin:469px 381px"><path d="M466 369c17-2 36 39 27 61-4 12-29 15-40 4-10-14-6-48 3-59" fill="url(#fur)" stroke="#c49b70" stroke-width="1.5"/><path d="M452 422c10-10 31-12 42-2l-1 11c-8 12-30 12-39 2" fill="#fff5e2"/><path d="M466 427v7m13-8v7" stroke="#d3ba98" stroke-width="2" stroke-linecap="round"/></g>
+              <g id="collar"><path d="M341 333q59 28 118-1" fill="none" stroke="#8da99b" stroke-width="13" stroke-linecap="round"/><circle cx="401" cy="350" r="13" fill="#e4bd69" stroke="#c9a359" stroke-width="1.5"/><path d="M405 343a7 7 0 1 0 3 11 7 7 0 0 1-3-11" fill="#fff4cc"/></g>
+            </g>
+            <g id="head"><g id="ear-left" style="transform-origin:316px 206px"><path d="M284 221c-16-29-25-89-8-94 18-5 58 26 78 52Z" fill="url(#fur)" stroke="#c49b70" stroke-width="2"/><path d="M292 189c-9-22-14-43-8-45s29 13 43 27Z" fill="#e7b1a0"/><path d="m282 161 8 7-8 8" stroke="#f8deba" stroke-width="6" fill="none" stroke-linecap="round"/></g><g id="ear-right" style="transform-origin:485px 206px"><path d="M446 178c25-27 58-56 78-50 14 8 3 63-9 95Z" fill="url(#fur)" stroke="#c49b70" stroke-width="2"/><path d="M474 174c17-16 32-30 39-29 7 4-2 29-8 47Z" fill="#e7b1a0"/><path d="m517 162-8 7 8 8" stroke="#f8deba" stroke-width="6" fill="none" stroke-linecap="round"/></g>
+              <path d="M272 241c-3-47 42-78 126-79 84-1 133 29 132 79 3 12 10 22 4 29l-8 4 7 9-13 5c-12 47-67 69-120 69-55 0-110-23-122-68l-13-5 8-10-9-5c-5-7 5-16 8-28Z" fill="url(#fur)" stroke="#c49b70" stroke-width="1.8" stroke-linejoin="round"/>
+              <path d="M381 168q-6 17 1 30m18-33q-4 20 1 39m20-35q2 17-3 28" fill="none" stroke="#d4a06c" stroke-width="9" stroke-linecap="round" opacity=".65"/>
+              <path d="M299 275c1 36 48 66 101 66s101-28 102-64c-16-16-47-11-69-23-11-6-19-19-33-18-14-1-22 12-33 18-22 12-53 7-68 21Z" fill="url(#white-fur)"/>
+              <ellipse class="cheek" cx="310" cy="285" rx="31" ry="22" fill="url(#blush)"/><ellipse class="cheek" cx="490" cy="285" rx="31" ry="22" fill="url(#blush)"/>
+              <g class="eyes-open"><ellipse cx="343" cy="251" rx="25" ry="29" fill="#fffaf0"/><ellipse cx="457" cy="251" rx="25" ry="29" fill="#fffaf0"/><g class="pupil"><ellipse cx="344" cy="251" rx="21" ry="26" fill="url(#eye)"/><ellipse cx="458" cy="251" rx="21" ry="26" fill="url(#eye)"/><ellipse cx="338" cy="241" rx="7.5" ry="9" fill="#fffef7"/><ellipse cx="452" cy="241" rx="7.5" ry="9" fill="#fffef7"/><circle cx="352" cy="262" r="3" fill="#fce5bd"/><circle cx="466" cy="262" r="3" fill="#fce5bd"/></g><path d="M318 247q1-25 24-26m90 26q1-25 24-26" fill="none" stroke="#8d6951" stroke-width="3" stroke-linecap="round"/></g>
+              <g class="eyes-happy" fill="none" stroke="#805f4e" stroke-width="4.5" stroke-linecap="round"><path d="M322 256q21-23 42 0m72 0q21-23 42 0"/></g>
+              <g class="eyes-sleep" fill="none" stroke="#805f4e" stroke-width="3.5" stroke-linecap="round"><path d="M323 251q21 17 41 0m73 0q21 17 41 0M329 259l-3 4m10-1-1 4m107-7-3 4m10-1-1 4"/></g>
+              <path d="M391 281q9-5 18 0c2 3-5 10-9 10s-11-7-9-10Z" fill="#cf9088"/><path d="M400 291v6m0-1q-10 14-20 1m20-1q10 14 20 1" fill="none" stroke="#99705a" stroke-width="2.7" stroke-linecap="round"/>
+              <g stroke="#b39074" stroke-width="1.7" stroke-linecap="round" fill="none" opacity=".8"><path d="m315 285-51-9m52 19-54 4m223-14 51-9m-52 19 54 4"/></g>
+              <g fill="#d0aa87"><circle cx="327" cy="280" r="1.7"/><circle cx="334" cy="286" r="1.5"/><circle cx="473" cy="280" r="1.7"/><circle cx="466" cy="286" r="1.5"/></g>
+              <ellipse id="head-hit" cx="400" cy="218" rx="125" ry="86" fill="transparent" role="button" tabindex="0" aria-label="摸摸糯米的头，睡着时可以叫醒它"/>
+            </g>
+          </g>
+          <g id="sleep-bubbles" aria-hidden="true" fill="#9caaae" font-family="Georgia, serif" font-style="italic"><text x="518" y="195" font-size="20">z</text><text x="544" y="164" font-size="28">z</text><text x="577" y="124" font-size="37">Z</text></g>
+          <g id="particles" aria-hidden="true"></g>
+          <g id="toy" aria-hidden="true" style="pointer-events:none"><path id="toy-string" d="M600 190Q615 130 650 120" fill="none" stroke="#bca58b" stroke-width="2"/><g id="feather"><path d="M0-30C-28-39-36-3-5 13 5 1 10-19 0-30" fill="#a3b8a6"/><path d="M3-25C28-34 37 0 7 15-3 5-6-14 3-25" fill="#d5b9b1"/><path d="M0-22 2 20" stroke="#748d79" stroke-width="2"/><circle cy="21" cx="2" r="4" fill="#e0bc73"/></g></g>
+          <g class="butterfly" aria-hidden="true" transform="translate(615 289)"><path class="wing" d="M0 0c-27-30-34 10-4 12C-18 30 11 35 0 0" fill="#dec593"/><path class="wing wing-two" d="M0 0c27-30 34 10 4 12C18 30-11 35 0 0" fill="#eddcb8"/><path d="M0-1 0 14" stroke="#aa956f" stroke-width="2" stroke-linecap="round"/></g>
+        </svg>
+        <div class="floating-note note-right" aria-hidden="true"><span>我的尾巴，有自己的想法</span><svg viewBox="0 0 60 44"><path d="M3 5c9 25 34 26 43 12M37 16l12-2-1 12"/></svg></div>
+        <div class="mood"><span class="mood-dot"></span><span id="mood-text" role="status" aria-live="polite">一只心情很好的小猫</span></div>
+      </section>
+      <div class="actions" aria-label="和糯米一起玩">
+        <button id="pet-button" class="action"><span class="action-icon pet-icon"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M12 20V10a2.5 2.5 0 0 1 5 0v8-12a2.5 2.5 0 0 1 5 0v12-9a2.5 2.5 0 0 1 5 0v12-6a2.5 2.5 0 0 1 5 0v9c0 6-5 10-11 10-4 0-8-2-10-6l-6-7a2.5 2.5 0 0 1 4-3l3 3"/></svg></span><span>摸摸头<small>软乎乎，暖呼呼</small></span><svg class="action-arrow" viewBox="0 0 20 20" aria-hidden="true"><path d="m7 5 5 5-5 5"/></svg></button>
+        <button id="play-button" class="action" aria-pressed="false"><span class="action-icon play-icon"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="m8 31 14-21m0 0q10-13 9 4"/><path d="M29 12c-12 0-15 14-2 15 9-8 7-13 2-15Z"/><path d="m24 28 6-12"/></svg></span><span>逗猫咪<small>来追我的小羽毛</small></span><svg class="action-arrow" viewBox="0 0 20 20" aria-hidden="true"><path d="m7 5 5 5-5 5"/></svg></button>
+        <button id="nap-button" class="action" aria-pressed="false"><span class="action-icon nap-icon"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M25 5A13 13 0 1 0 31 25 14 14 0 0 1 25 5Z"/><path d="m28 6 2 4 4 1-4 2-1 4-2-4-4-1 4-2Z"/></svg></span><span id="nap-label">打个盹<small>陪我做一个好梦</small></span><svg class="action-arrow" viewBox="0 0 20 20" aria-hidden="true"><path d="m7 5 5 5-5 5"/></svg></button>
+      </div>
+      <p class="hint"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M9 15S2 11 2 6.5a3.5 3.5 0 0 1 7-1 3.5 3.5 0 0 1 7 1C16 11 9 15 9 15Z"/></svg><span id="hint-text">试着移动鼠标，或者用手指轻轻摸摸它。</span></p>
+    </main>
+    <footer><span>小小陪伴，刚刚好。</span><span>只管可爱，慢慢来 <i>✳</i></span></footer>
+  </div>
+  <script src="./app.js"></script>
+</body>
+</html>
