@@ -1,0 +1,16 @@
+.dev.vars
+.env
+.env.*
+node_modules/
+.wrangler/
+
+.runtime/
+
+# Generated server bundle, private runtime and editor files.
+/dist/
+.DS_Store
+*.log
+*.local
+.dev.vars.*
+!.env.example
+*.tmp

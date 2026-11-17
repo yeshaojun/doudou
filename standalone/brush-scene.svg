@@ -1,0 +1,18 @@
+<svg id="brush-scene" viewBox="0 0 800 540" aria-label="豆豆坐在小浴室里，张开嘴等步步帮忙刷牙">
+ <defs><pattern id="bath-tiles" width="80" height="65" patternUnits="userSpaceOnUse"><rect width="80" height="65" rx="7" fill="#e4e9d6" stroke="#f6f2df" stroke-width="4"/></pattern></defs>
+ <rect x="8" y="8" width="784" height="524" rx="38" fill="url(#bath-tiles)"/>
+ <path d="M230 388V170a170 170 0 0 1 340 0v218Z" fill="#f6ead3" stroke="#c5b18d" stroke-width="12"/><path d="M252 177q13-100 115-119" fill="none" stroke="#fff8e9" stroke-width="10" opacity=".7"/>
+ <g fill="#c4d0b0"><path d="M78 166h70l-8 65H86Z"/><path d="M113 168q-45-34-25-54 32 2 27 47m-1 0q-1-52 25-50 23 30-25 50" fill="#95ac86"/></g>
+ <g id="brush-cat"><path d="M315 329q-22 46-18 109h210q1-71-33-109Z" fill="url(#body-fur)" stroke="#c49b70" stroke-width="2"/><path d="M353 352q48-25 94 0l12 85H340Z" fill="url(#white-fur)"/><!--CAT-HEAD--></g>
+ <g id="brush-mouth"><rect x="343" y="297" width="114" height="48" rx="23" fill="#cc9b91" stroke="#bb887c" stroke-width="2"/><path d="M374 340q26-13 51 0" fill="#dca49a"/>
+ <g fill="#fffdf2" stroke="#e8dac6" stroke-width="1"><rect x="350" y="299" width="16" height="18" rx="5"/><rect x="367" y="299" width="16" height="18" rx="5"/><rect x="384" y="299" width="16" height="18" rx="5"/><rect x="401" y="299" width="16" height="18" rx="5"/><rect x="418" y="299" width="16" height="18" rx="5"/><rect x="435" y="299" width="15" height="18" rx="5"/><rect x="370" y="334" width="14" height="9" rx="4"/><rect x="393" y="334" width="14" height="9" rx="4"/><rect x="416" y="334" width="14" height="9" rx="4"/></g>
+ <g id="tooth-dirt-0" fill="#dbc994" opacity=".7"><circle cx="359" cy="310" r="3.3"/></g><g id="tooth-dirt-1" fill="#dbc994" opacity=".7"><circle cx="394" cy="310" r="3.3"/></g><g id="tooth-dirt-2" fill="#dbc994" opacity=".7"><circle cx="441" cy="310" r="3.3"/></g>
+ </g>
+ <g id="brush-foam" opacity="0" pointer-events="none" fill="#fffdf2" stroke="#c3dcce" stroke-width="1.5"><circle cx="355" cy="333" r="12"/><circle cx="370" cy="345" r="10"/><circle cx="386" cy="339" r="12"/><circle cx="403" cy="345" r="9"/><circle cx="421" cy="339" r="13"/><circle cx="443" cy="332" r="12"/><circle cx="453" cy="345" r="6"/></g>
+ <g id="brush-sparkles" opacity="0" stroke="#e1bd6e" stroke-width="4" stroke-linecap="round"><path d="M300 252v20m-10-10h20M494 274v22m-11-11h22M470 370v16m-8-8h16"/></g>
+ <path d="M55 418h690v26H55Z" fill="#d5b591" stroke="#b89c78" stroke-width="2"/><path d="M70 444h660v80H70Z" fill="#ebcfa9"/><path d="M88 464h190v48H88m244-48h190v48H332m244-48h131v48H576" fill="#f2ddbd" stroke="#d3b68f" stroke-width="2"/>
+ <ellipse cx="400" cy="429" rx="114" ry="23" fill="#fff9e7" stroke="#d7c2a1" stroke-width="4"/><ellipse cx="400" cy="431" rx="88" ry="12" fill="#d5e3d4"/>
+ <g stroke="#a5b6a4" stroke-width="10" fill="none"><path d="M513 421v-52q0-13-14-13h-25v15"/></g>
+ <g fill="url(#white-fur)" stroke="#c49b70" stroke-width="1.5"><ellipse cx="307" cy="415" rx="29" ry="18"/><ellipse cx="489" cy="415" rx="29" ry="18"/></g><g stroke="#d4b995" stroke-width="2"><path d="M300 416v11m10-11v11m174-11v11m10-11v11"/></g>
+ <g id="rinse-water" opacity="0" fill="#b6d7d6"><path d="M372 359q-8 17 0 19 8-2 0-19m25 9q-8 19 0 22 8-3 0-22m27-10q-8 17 0 19 8-2 0-19Z"/></g>
+<g id="brush-guide" pointer-events="none" fill="none" stroke="#cfaa6b" stroke-width="3" stroke-linecap="round"><path id="brush-guide-curve" d="M135 400Q200 345 332 324" stroke-dasharray="4 8"/><path d="m320 315 15 7-10 13"/></g></svg>

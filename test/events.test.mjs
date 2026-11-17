@@ -1,0 +1,61 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import {readFile} from 'node:fs/promises';
+const source=await readFile(new URL('../standalone/events.js',import.meta.url),'utf8');
+function harness(saved=new Map()){
+ let now=0,timers=[],intervals=[];const nodes=new Map(),listeners=new Map(),emitted=[];
+ class Element{
+  constructor(){this.listeners=new Map();this.attrs={};this.dataset={};this.style={};this.hidden=false;this.disabled=false;this._classes=new Set();this.classList={add:(...ks)=>ks.forEach(k=>this._classes.add(k)),remove:(...ks)=>ks.forEach(k=>this._classes.delete(k)),contains:k=>this._classes.has(k),toggle:(k,b)=>{if(b??!this._classes.has(k))this._classes.add(k);else this._classes.delete(k);}};}
+  set id(v){this._id=v;nodes.set(v,this);}get id(){return this._id;}
+  set className(v){this._classes=new Set(v.split(' '));}get className(){return [...this._classes].join(' ');}
+  setAttribute(k,v){this.attrs[k]=v;}getAttribute(k){return this.attrs[k];}focus(){}appendChild(){}setPointerCapture(){}
+  querySelector(){return get('stage');}querySelectorAll(){return[];}getScreenCTM(){return{inverse:()=>({})};}getBoundingClientRect(){return{width:80,height:80};}
+  addEventListener(k,f){if(!this.listeners.has(k))this.listeners.set(k,[]);this.listeners.get(k).push(f);}
+  fire(k,o={}){if(k==='click'&&this.disabled)return;for(const f of this.listeners.get(k)||[])f({preventDefault(){},stopPropagation(){},...o});}
+ }
+ const get=id=>{if(!nodes.has(id)){const el=new Element();el.id=id;}return nodes.get(id);};
+ const menus=['tidy','find','spill','share','water','laundry'].map(k=>{const b=new Element();b.dataset.story=k;return b;});
+ for(const id of ['story-room','brush-room','fold-game','settings','discovery-panel','drag-ghost','event-invitation'])get(id).hidden=true;
+ get('scene').dataset={activity:'idle',location:'home',friend:'none'};
+ const document={hidden:false,getElementById:get,createElement:()=>new Element(),querySelectorAll:()=>menus,querySelector:s=>menus.find(b=>s.includes('"'+b.dataset.story+'"')),addEventListener:(k,f)=>{if(!listeners.has(k))listeners.set(k,[]);listeners.get(k).push(f);},dispatchEvent(e){emitted.push(e);for(const f of listeners.get(e.type)||[])f(e);}};
+ const window={addEventListener:(k,f)=>{listeners.set('window:'+k,[f]);}};
+ const ctx={document,window,localStorage:{getItem:k=>saved.get(k)||null,setItem:(k,v)=>saved.set(k,v)},performance:{now:()=>now},CustomEvent:class{constructor(type,o){this.type=type;this.detail=o?.detail;}},DOMPoint:class{constructor(x,y){this.x=x;this.y=y;}matrixTransform(){return this;}},setTimeout:(f,ms)=>{const id={f,at:now+ms};timers.push(id);return id;},clearTimeout:id=>{timers=timers.filter(t=>t!==id);},setInterval:f=>intervals.push(f)};
+ vm.runInNewContext(source,ctx);
+ const step=(ms=500)=>{for(let end=now+ms;now<end;){now=Math.min(end,now+500);const due=timers.filter(t=>t.at<=now);timers=timers.filter(t=>t.at>now);due.forEach(t=>t.f());intervals.forEach(f=>f());}};
+ const drag=(id,x,y,steps=16)=>{const b=get(id),ox=+b.dataset.x,oy=+b.dataset.y;b.fire('pointerdown',{pointerId:1,clientX:ox,clientY:oy});for(let i=1;i<=steps;i++)b.fire('pointermove',{pointerId:1,clientX:ox+(x-ox)*i/steps,clientY:oy+(y-oy)*i/steps});b.fire('pointerup',{pointerId:1,clientX:x,clientY:y});};
+ return{get,step,drag,document,window,saved,open:k=>menus.find(b=>b.dataset.story===k).fire('click'),event:(type,detail)=>document.dispatchEvent({type,detail}),emitted};
+}
+test('sorting requires matching pictures; a wrong basket returns the toy and the kitten handles the last item',()=>{
+ const h=harness();h.open('tidy');h.drag('tidy-ball',640,440);assert.equal(h.get('story-steps').attrs['aria-label'],'已完成0步，共4步');assert.equal(h.get('tidy-ball').dataset.x,'280');
+ h.drag('tidy-ball',160,440);h.drag('tidy-feather',400,440);h.drag('tidy-block',640,440);assert.equal(h.get('story-steps').attrs['aria-label'],'已完成3步，共4步');h.step(1500);assert(h.get('story-room').classList.contains('story-success'));assert.deepEqual(JSON.parse(h.saved.get('doudou-stories-v1')).done,['tidy']);
+});
+test('cabinet game needs light, then the wand, then carrying the exposed ball to the kitten',()=>{
+ const h=harness();h.open('find');assert(h.get('lost-ball').disabled);h.drag('find-torch',470,416);h.step(500);assert(!h.get('find-wand').hidden);assert(h.get('lost-ball').disabled);
+ h.drag('find-wand',435,416);assert(!h.get('lost-ball').disabled);h.drag('lost-ball',740,470);assert(!h.get('story-room').classList.contains('story-success'));h.drag('lost-ball',220,350);assert(h.get('story-room').classList.contains('story-success'));
+});
+test('spilled water cannot be wiped until the cup is upright, and only movement in the puddle cleans it',()=>{
+ const h=harness();h.open('spill');assert(h.get('spill-cloth').disabled);h.get('spill-cup').fire('click');assert(!h.get('spill-cloth').disabled);h.drag('spill-cloth',130,160);assert.notEqual(h.get('story-puddle').style.opacity,'0');
+ h.drag('spill-cloth',310,395);for(let i=0;i<4;i++)h.drag('spill-cloth',i%2?310:510,395);assert.equal(h.get('story-puddle').style.opacity,'0');assert(h.get('story-room').classList.contains('story-success'));
+});
+test('sharing accepts only the highlighted kitten and alternates four passes',()=>{
+ const h=harness();h.open('share');h.drag('share-ball',630,359);assert.equal(h.get('story-steps').attrs['aria-label'],'已完成0步，共4步');for(const x of [220,630,220,630]){h.drag('share-ball',x,359);h.step(1000);}assert(h.get('story-room').classList.contains('story-success'));
+});
+test('natural invitations have a play prerequisite, do not interrupt sleep or gestures, and wait for a tap',()=>{
+ const h=harness();h.step(30000);assert(h.get('event-invitation').hidden);h.event('doudou:used',{item:'yarn'});h.event('doudou:used',{item:'feather'});h.get('scene').dataset.activity='sleep';h.step(30000);assert(h.get('event-invitation').hidden);
+ h.get('scene').dataset.activity='idle';h.event('pointerdown');h.step(2000);assert(h.get('event-invitation').hidden);h.event('pointerup');h.step();assert(!h.get('event-invitation').hidden);assert(h.get('story-room').hidden);h.get('event-invitation').fire('click');assert(!h.get('story-room').hidden);
+});
+test('background time is paused; idle assistance completes gently without earning a manual discovery',()=>{
+ const h=harness();h.open('spill');h.document.hidden=true;h.step(120000);assert(!h.get('story-room').classList.contains('story-success'));h.document.hidden=false;h.step(46000);assert(h.get('story-room').classList.contains('story-success'));assert(!h.saved.has('doudou-stories-v1'));
+});
+test('closing cancels pending helper callbacks and completed memories restore with a bounded save format',()=>{
+ const h=harness();h.open('tidy');h.drag('tidy-ball',160,440);h.drag('tidy-feather',400,440);h.drag('tidy-block',640,440);h.get('story-close').fire('click');h.step(2000);assert(h.get('story-room').hidden);assert(!h.saved.has('doudou-stories-v1'));
+ assert(!h.window.DoudouEvents.validSave({done:['unknown']}));assert(!h.window.DoudouEvents.validSave({done:Array(5).fill('tidy')}));h.window.DoudouEvents.restoreSave({done:['find']});assert.deepEqual(JSON.parse(h.saved.get('doudou-stories-v1')).done,['find']);
+});
+
+test('watering only progresses over the plant, stops at the full amount and blooms without overflow',()=>{
+ const h=harness();h.open('water');h.drag('water-can',730,470);assert.equal(h.get('water-fill').attrs.height,'0');h.drag('water-can',500,280);for(let i=0;i<8;i++)h.drag('water-can',i%2?480:550,i%2?260:330);assert(h.get('story-room').classList.contains('plant-bloom'));assert(h.get('story-room').classList.contains('story-success'));assert.equal(h.get('water-fill').attrs.height,'60');assert.equal(h.get('water-drops').attrs.opacity,'0');
+});
+test('a quilt must be hung before the two pegs unlock and both corners must be fastened',()=>{
+ const h=harness();h.open('laundry');assert(h.get('laundry-peg-left').disabled);h.drag('laundry-quilt',450,265);assert(!h.get('laundry-peg-left').disabled);h.drag('laundry-peg-left',355,222);assert(!h.get('story-room').classList.contains('story-success'));h.drag('laundry-peg-right',545,222);h.step(1500);assert(h.get('story-room').classList.contains('story-success'));assert.deepEqual(JSON.parse(h.saved.get('doudou-stories-v1')).done,['laundry']);
+});
