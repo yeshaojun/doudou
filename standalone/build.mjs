@@ -64,6 +64,7 @@ html=html.replace('<!--EVENTS-SCENE-->',(await read('standalone/events-scene.svg
 html=html.replace('<!--BRUSH-SCENE-->',(await read('standalone/brush-scene.svg')).replace('<!--CAT-HEAD-->',brushHead));
 html=html.replace('<!--STYLE-->',`<style>${await read('web/style.css')}\n${await read('standalone/style.css')}</style>`).replace('<!--SCENE-->',scene).replace('<!--STAMPS-->',stamp).replace('<!--HIDDEN-->',hidden).replace('<!--SCRIPTS-->',`<script>const SOUND_DATA=${JSON.stringify(sounds)};${soundJS}\n${await read('standalone/audio-ui.js')}</script><script>${life}</script><script>${app}</script><script>${await read('standalone/world.js')}\n${await read('standalone/brush.js')}\n${await read('standalone/events.js')}</script>`);
 if(root.pathname.endsWith('/x/work/nuomi-kitten/'))await mkdir(new URL('../../outputs/',root),{recursive:true});
+html=html.replace(/[ \t]+$/gm,'');
 await atomicWrite(new URL('standalone/index.html',root),html);
 await atomicWrite(new URL('index.html',root),html);
 const output=root.pathname.endsWith('/x/work/nuomi-kitten/')?new URL('../../outputs/豆豆和团团的温暖小家.html',root):new URL('standalone/index.html',root);await atomicWrite(output,html);
