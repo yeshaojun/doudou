@@ -15,7 +15,7 @@ function harness(saved=new Map()){
   fire(k,o={}){if(k==='click'&&this.disabled)return;for(const f of this.listeners.get(k)||[])f({preventDefault(){},stopPropagation(){},...o});}
  }
  const get=id=>{if(!nodes.has(id)){const el=new Element();el.id=id;}return nodes.get(id);};
- const menus=['tidy','find','spill','share','water','laundry'].map(k=>{const b=new Element();b.dataset.story=k;return b;});
+ const menus=['tidy','find','spill','share','water','laundry','drink','rain'].map(k=>{const b=new Element();b.dataset.story=k;return b;});
  for(const id of ['story-room','brush-room','fold-game','settings','discovery-panel','drag-ghost','event-invitation'])get(id).hidden=true;
  get('scene').dataset={activity:'idle',location:'home',friend:'none'};
  const document={hidden:false,getElementById:get,createElement:()=>new Element(),querySelectorAll:()=>menus,querySelector:s=>menus.find(b=>s.includes('"'+b.dataset.story+'"')),addEventListener:(k,f)=>{if(!listeners.has(k))listeners.set(k,[]);listeners.get(k).push(f);},dispatchEvent(e){emitted.push(e);for(const f of listeners.get(e.type)||[])f(e);}};
@@ -58,4 +58,23 @@ test('watering only progresses over the plant, stops at the full amount and bloo
 });
 test('a quilt must be hung before the two pegs unlock and both corners must be fastened',()=>{
  const h=harness();h.open('laundry');assert(h.get('laundry-peg-left').disabled);h.drag('laundry-quilt',450,265);assert(!h.get('laundry-peg-left').disabled);h.drag('laundry-peg-left',355,222);assert(!h.get('story-room').classList.contains('story-success'));h.drag('laundry-peg-right',545,222);h.step(1500);assert(h.get('story-room').classList.contains('story-success'));assert.deepEqual(JSON.parse(h.saved.get('doudou-stories-v1')).done,['laundry']);
+});
+
+test('water ritual requires bowl placement, a held tap, carrying, then a gentle stroke; stops at full',()=>{
+ const h=harness();h.open('drink');assert(h.get('drink-tap').disabled);h.drag('drink-bowl',220,360);assert.equal(h.get('story-steps').attrs['aria-label'],'已完成0步，共4步');
+ h.drag('drink-bowl',485,330);h.get('drink-tap').fire('pointerdown',{pointerId:1});h.step(1000);h.get('drink-tap').fire('pointerup');const level=h.get('drink-water-level').attrs.height;h.step(3000);assert.equal(h.get('drink-water-level').attrs.height,level);
+ h.get('drink-tap').fire('pointerdown',{pointerId:1});h.step(4000);assert(h.get('drink-tap').disabled);assert(!h.get('story-room').classList.contains('tap-running'));assert.equal(h.get('drink-water-level').attrs.height,'65');assert(h.get('drink-cuddle').hidden);
+ h.drag('drink-bowl',220,360);assert(!h.get('drink-cuddle').hidden);for(let i=0;i<4;i++)h.drag('drink-cuddle',i%2?170:270,280);assert(h.get('story-room').classList.contains('story-success'));assert.deepEqual(JSON.parse(h.saved.get('doudou-stories-v1')).done,['drink']);
+});
+test('leaving the foreground stops the tap and reopening clears water progress',()=>{
+ const h=harness();h.open('drink');h.drag('drink-bowl',485,330);h.get('drink-tap').fire('pointerdown',{pointerId:1});h.step(1000);h.document.hidden=true;h.event('visibilitychange');assert(!h.get('story-room').classList.contains('tap-running'));h.step(10000);h.document.hidden=false;h.get('story-close').fire('click');h.open('drink');assert.equal(h.get('drink-water-level').attrs.height,'0');assert(h.get('drink-tap').disabled);
+});
+test('rain ritual unlocks towel after shelter, then blanket only after the paws are dry',()=>{
+ const h=harness();h.open('rain');assert(h.get('rain-cloth').disabled);assert(h.get('rain-quilt').disabled);h.drag('ritual-umbrella',220,180);assert(!h.get('rain-cloth').disabled);h.drag('rain-cloth',220,360);for(let i=0;i<6;i++)h.drag('rain-cloth',i%2?165:270,360);assert(!h.get('rain-quilt').disabled);assert.equal(h.get('rain-paw-drops').style.opacity,'0');h.drag('rain-quilt',220,350);assert(h.get('story-room').classList.contains('cozy-rain'));assert(h.get('story-room').classList.contains('story-success'));
+});
+test('growth counts distinct completed rituals, restores old saves and has eight bounded memories',()=>{
+ const h=harness(new Map([['doudou-stories-v1',JSON.stringify({done:['tidy','find']})]]));assert.match(h.get('growth-summary').textContent,/放心/);h.window.DoudouEvents.restoreSave({done:['tidy','find','spill','share','water']});assert.match(h.get('growth-summary').textContent,/默契/);h.window.DoudouEvents.restoreSave({done:['tidy','find','spill','share','water','laundry','drink','rain']});assert.match(h.get('growth-summary').textContent,/小家人/);h.open('drink');h.step(46000);assert.equal(h.window.DoudouEvents.getSave().done.length,8);assert(!h.window.DoudouEvents.validSave({done:['drink','drink']}));
+});
+test('random life invitations arrive without toy prerequisites and never open a story by themselves',()=>{
+ const h=harness();h.step(80000);assert(!h.get('event-invitation').hidden);assert(h.get('story-room').hidden);assert.match(h.get('event-invitation').attrs['aria-label'],/接一碗水/);h.get('event-invitation').fire('click');assert(!h.get('story-room').hidden);assert.match(h.get('story-title').textContent,/接一碗水/);
 });

@@ -8,6 +8,7 @@ const catStart=scene.indexOf('<g id="cat">');
 let depth=0,catEnd=catStart;const tags=/<g(?:\s[^>]*)?>|<\/g>/g;tags.lastIndex=catStart;
 for(let match;(match=tags.exec(scene));){depth+=match[0].startsWith('</')?-1:1;if(!depth){catEnd=tags.lastIndex;break;}}
 scene=scene.slice(0,catStart)+'<g transform="translate(400 440) scale(.82) translate(-400 -440)">'+scene.slice(catStart,catEnd)+'</g>'+scene.slice(catEnd);
+scene=scene.replace(/(<g id="collar">[\s\S]*?)(<\/g>)/, '$1<path class="growth-charm" d="m401 336 5 9 10 2-7 7 1 10-9-5-9 5 1-10-7-7 10-2Z" fill="#f1d18a" stroke="#c7a25d" stroke-width="1.5"/>$2');
 scene=scene.replace('rx="125" ry="19"','rx="102" ry="15"');
 const room=await read('standalone/room.svg');
 scene=scene.replace('<g class="sky-details"',room+'<g class="sky-details"');
