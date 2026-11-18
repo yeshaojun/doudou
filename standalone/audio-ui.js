@@ -2,10 +2,11 @@
  'use strict';
  const api=window.DoudouSounds,button=document.getElementById('sound-button'),start=document.getElementById('audio-start');
  const speaker=on=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m11 5-5 4H3v6h3l5 4Z"/>'+(on?'<path d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/>':'<path d="m16 9 6 6m0-6-6 6"/>')+'</svg>';
- let unlocked=false,lastAt=-Infinity,voices=new Set();
- function render(){const on=api.isEnabled();button.innerHTML=speaker(on);button.classList.toggle('muted',!on);button.title=on?'声音已开启，点一下静音':'声音已关闭，点一下开启';start.hidden=unlocked&&on;start.innerHTML=speaker(on)+(on?'点一下，听听豆豆':'声音已关闭 · 点这里开启');}
+ let unlocked=false,pointerHeld=false,lastAt=-Infinity,voices=new Set();
+ function render(){const on=api.isEnabled();button.innerHTML=speaker(on);button.classList.toggle('muted',!on);button.title=on?'声音已开启，点一下静音':'声音已关闭，点一下开启';start.hidden=unlocked&&on&&!pointerHeld;start.innerHTML=speaker(on)+(on?'点一下，听听豆豆':'声音已关闭 · 点这里开启');}
  function unlock(){api.unlock();try{const ctx=api.getContext();if(ctx)Promise.resolve(ctx.resume()).then(()=>{unlocked=ctx.state==='running';render();}).catch(()=>render());}catch{}render();}
  start.addEventListener('pointerdown',()=>{api.setEnabled(true);unlock();});start.addEventListener('click',()=>{api.setEnabled(true);unlock();});button.addEventListener('click',()=>{unlock();if(!api.isEnabled())stop();});
+ document.addEventListener('pointerdown',()=>{pointerHeld=true;},{capture:true});document.addEventListener('pointerup',()=>setTimeout(()=>{pointerHeld=false;render();},0),{capture:true});document.addEventListener('pointercancel',()=>{pointerHeld=false;render();},{capture:true});
  document.addEventListener('pointerdown',unlock,{once:true,capture:true});document.addEventListener('keydown',unlock,{once:true,capture:true});
  function stop(){for(const voice of voices){try{voice.stop();voice.disconnect();}catch{}}voices.clear();}
  function foley(kind){if(document.hidden||!api.isEnabled()||!['water','swish','click','chime'].includes(kind))return;const now=performance.now();if(now-lastAt<180)return;lastAt=now;const ctx=api.getContext();if(!ctx||ctx.state!=='running')return;const t=ctx.currentTime,gain=ctx.createGain();gain.gain.setValueAtTime(.0001,t);gain.gain.exponentialRampToValueAtTime(kind==='chime'?.075:.035,t+.012);gain.gain.exponentialRampToValueAtTime(.0001,t+(kind==='chime'?.65:.18));gain.connect(ctx.destination);

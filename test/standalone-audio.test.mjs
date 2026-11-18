@@ -11,7 +11,7 @@ async function harness({aacFails=false,muted=false}={}){
  const ramp={value:1,setValueAtTime(){},exponentialRampToValueAtTime(){}};
  class Context{constructor(){contexts++;this.state='suspended';this.currentTime=0;this.sampleRate=22050;this.destination={};}resume(){this.state='running';return Promise.resolve();}createBuffer(c,n){return{silent:true,getChannelData:()=>new Float32Array(n)};}async decodeAudioData(buffer){const type=Buffer.from(buffer).toString('ascii',0,4)==='RIFF'?'wav':'aac';decoded.push(type);if(type==='aac'&&aacFails)throw Error('AAC unsupported');return{sound:true};}createGain(){return{gain:ramp,connect(){},disconnect(){}};}createBufferSource(){return{buffer:null,connect(){},disconnect(){},start(){if(this.buffer?.sound)played.push('cat');},stop(){stopped.push('cat');}};}createOscillator(){return{frequency:ramp,connect(){},disconnect(){},start(){played.push('foley');},stop(){stopped.push('foley');}};}}
  const window={AudioContext:Context,addEventListener(){}};
- const ctx={document,window,performance:{now:()=>now},localStorage:{getItem:()=>muted?'off':null,setItem(){}},atob:s=>Buffer.from(s,'base64').toString('binary'),CustomEvent:class{constructor(type,o){this.type=type;this.detail=o?.detail;}},console};
+ const ctx={document,window,setTimeout,performance:{now:()=>now},localStorage:{getItem:()=>muted?'off':null,setItem(){}},atob:s=>Buffer.from(s,'base64').toString('binary'),CustomEvent:class{constructor(type,o){this.type=type;this.detail=o?.detail;}},console};
  vm.runInNewContext(source,ctx);
  const flush=async()=>{for(let i=0;i<6;i++)await new Promise(r=>setImmediate(r));};
  return{get,window,document,decoded,played,stopped,flush,contexts:()=>contexts,event:(type,event={})=>{for(const f of listeners.get(type)||[])f(event);},advance:ms=>{now+=ms;}};
@@ -28,3 +28,5 @@ test('interactive foley follows mute state and hidden pages cannot start more so
 test('pinch, double click and modified wheel zoom are prevented while single-finger scroll is retained',async()=>{
  const h=await harness();let prevented=0;const preventDefault=()=>prevented++;h.event('gesturestart',{preventDefault});h.event('dblclick',{preventDefault});h.event('touchmove',{touches:[{},{}],preventDefault});h.event('wheel',{ctrlKey:true,preventDefault});assert.equal(prevented,4);h.event('touchmove',{touches:[{}],preventDefault});h.event('wheel',{ctrlKey:false,metaKey:false,preventDefault});assert.equal(prevented,4);assert(html.includes('maximum-scale=1,user-scalable=no'));
 });
+
+test('first-touch audio unlocking keeps layout stable until the pointer click completes',async()=>{const h=await harness();h.event('pointerdown');await h.flush();assert(!h.get('audio-start').hidden);h.event('pointerup');await new Promise(r=>setTimeout(r,5));assert(h.get('audio-start').hidden);});
