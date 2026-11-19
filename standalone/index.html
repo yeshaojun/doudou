@@ -118,9 +118,11 @@ html,body{touch-action:pan-y}.audio-start{display:flex;align-items:center;justif
 #cook-bowl .bowl-meal{transition:opacity 1.4s ease-out}#cook-bowl.meal-eaten .bowl-meal{opacity:0}.meal-portioned #cook-bowl-steam{animation:none}.meal-portioned #cook-bowl-steam path{animation:food-steam 1.8s ease-in-out infinite}.meal-cooled #cook-bowl-steam{display:none!important}.story-cook #story-bubbles{z-index:9}.cook-wash-overlay{position:absolute;inset:0;width:100%;height:100%;opacity:0;pointer-events:none}.food-rinsing .cook-wash-overlay{opacity:.9}
 
 .story-cook .ingredient-dirt{opacity:calc(1 - var(--washed,0));transition:opacity .2s}
+
+.sound-strip{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 auto 12px;min-height:44px}.sound-strip .audio-start{margin:0;min-height:44px;min-width:172px;font-size:11px;padding:8px 13px}.audio-compat{min-height:44px;padding:8px 12px;border:1px solid #d8c6a4;background:#f4ecd9;border-radius:20px;color:#8c9070;font-size:10px;white-space:nowrap}.audio-compat[aria-pressed=true]{background:#e1e9ce;border-color:#abb990;color:#75865e}body.night .audio-compat{background:#5d6c58;color:#eee5cb;border-color:#8a9579}@media(max-width:380px){.sound-strip{gap:5px}.sound-strip .audio-start{min-width:160px;padding:8px 9px}.audio-compat{padding:8px 9px}}
 </style></head><body>
 <div class="home-shell"><header class="home-header"><div class="wordmark"><span class="paw-mark">✿</span><div>豆豆和团团<small>步步的温暖小家</small></div></div><div class="header-controls"><button id="sound-button" class="theme-button" aria-label="猫咪音效">♪</button><button id="theme-button" class="theme-button" aria-label="白天与夜晚"><svg class="sun-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v3m0 16v3M1 12h3m16 0h3M4 4l2 2m12 12 2 2M4 20l2-2M18 6l2-2"/></svg><svg class="moon-icon" viewBox="0 0 24 24"><path d="M18 17A9 9 0 0 1 8 4a9 9 0 1 0 10 13Z"/></svg></button><button id="settings-button" class="theme-button" aria-label="家长设置">⚙</button></div></header>
-<button id="audio-start" class="audio-start" aria-label="开启声音并试听豆豆的叫声"><span>♪</span> 点一下，听听豆豆</button><main class="world"><div class="world-heading"><div><span class="chapter">一间小屋 · 两个小伙伴</span><h1>今天，也一起慢慢玩。</h1></div><button id="discovery-button" aria-label="打开小爪印发现册" aria-expanded="false"><span>🐾</span><span id="discovery-count">0</span><small>/ 6</small></button></div>
+<div class="sound-strip"><button id="audio-start" class="audio-start" aria-label="开启声音并试听豆豆的叫声"><span>♪</span> 点一下，听听豆豆</button><button id="audio-compat" class="audio-compat" aria-pressed="false" aria-label="切换平板兼容播放并试听">平板兼容播放</button></div><main class="world"><div class="world-heading"><div><span class="chapter">一间小屋 · 两个小伙伴</span><h1>今天，也一起慢慢玩。</h1></div><button id="discovery-button" aria-label="打开小爪印发现册" aria-expanded="false"><span>🐾</span><span id="discovery-count">0</span><small>/ 6</small></button></div>
 <section class="room" aria-label="豆豆的家，摸摸猫咪或拖动玩具"><svg id="scene" class="scene" viewBox="0 0 800 540" aria-labelledby="scene-title scene-desc">
           <title id="scene-title">奶油橘色的小猫豆豆</title><desc id="scene-desc">拖动毛线球或羽毛，豆豆会看着玩具追跑。摸摸脑袋，小猫会开心地眯眼。朋友团团偶尔会来敲门，也可以带豆豆去它的小花园一起玩。</desc>
           <defs>
@@ -324,8 +326,15 @@ html,body{touch-action:pan-y}.audio-start{display:flex;align-items:center;justif
   let context=null,active=null,enabled=true,conversation='idle',lastAt=-Infinity,lastName='',generation=0;
   const buffers=new Map(),pending=new Map(),button=document.getElementById('sound-button');
   try{enabled=localStorage.getItem('doudou-sounds')!=='off';}catch{}
+  const nav=window.navigator,appleTouch=/iPad|iPhone|iPod/.test(nav?.userAgent||'')||/Mac/.test(nav?.platform||'')&&nav?.maxTouchPoints>1;
+  let mediaMode=!!(appleTouch&&!nav?.audioSession&&window.Audio),mediaElement=null;
+  try{const saved=localStorage.getItem('doudou-audio-mode');if(saved==='media')mediaMode=!!window.Audio;else if(saved==='webaudio')mediaMode=false;}catch{}
+  const mediaUrl=(name,extension)=>'data:'+(extension==='wav'?'audio/wav':'audio/mp4')+';base64,'+SOUND_DATA[name][extension];
+  function playbackSession(){if(!enabled||conversation!=='idle')return;try{if(nav?.audioSession)nav.audioSession.type='playback';}catch{}}
+  function report(state){button?.setAttribute('data-audio-state',state);button?.setAttribute('data-audio-transport',mediaMode?'media':'webaudio');if(typeof CustomEvent==='function')document.dispatchEvent?.(new CustomEvent('doudou:audio-status',{detail:{state}}));}
   function render(){button?.setAttribute('aria-pressed',String(enabled));button?.setAttribute('aria-label',enabled?'关闭猫咪音效':'开启猫咪音效');if(button)button.textContent=enabled?'♪':'♩';}
   function getContext(){
+    playbackSession();
     const AudioCtx=window.AudioContext||window.webkitAudioContext;if(!AudioCtx)return null;
     if(!context||context.state==='closed')context=new AudioCtx();return context;
   }
@@ -343,30 +352,40 @@ html,body{touch-action:pan-y}.audio-start{display:flex;align-items:center;justif
     pending.set(name,promise);return promise;
   }
   function unlock(){
-    try{const ctx=getContext();if(!ctx)return;Promise.resolve(ctx.resume()).catch(()=>{});const silent=ctx.createBufferSource();silent.buffer=ctx.createBuffer(1,1,ctx.sampleRate);silent.connect(ctx.destination);silent.start();
+    try{playbackSession();const ctx=getContext();if(!ctx)return;Promise.resolve(ctx.resume()).catch(()=>{});const silent=ctx.createBufferSource();silent.buffer=ctx.createBuffer(1,1,ctx.sampleRate);silent.connect(ctx.destination);silent.onended=()=>silent.disconnect();silent.start();
       // Cache these tiny, fixed effects; no recording or model request is involved.
       for(const name of names)load(name).catch(()=>{});
     }catch{}
   }
-  function stop(){generation++;if(active){try{active.source.stop();active.source.disconnect();active.gain.disconnect();}catch{}active=null;button?.setAttribute('data-audio-state','ready');}}
+  function stop(){generation++;if(active){try{if(active.media){active.media.pause();active.media.currentTime=0;}else{active.source.stop();active.source.disconnect();active.gain.disconnect();}}catch{}active=null;report('ready');}}
+  function playMedia(name,ticket){
+    if(!window.Audio){report('unavailable');return;}
+    // Reuse the same element. play() runs in the user's gesture, before any await.
+    const el=mediaElement||(mediaElement=new window.Audio());let currentExtension='m4a';el.preload='auto';el.volume=.7;el.muted=false;el.setAttribute?.('playsinline','');
+    const valid=()=>ticket===generation&&enabled&&!document.hidden&&conversation==='idle';
+    function fail(extension,error){if(!valid()||extension!==currentExtension)return;if(extension==='m4a'&&error?.name!=='NotAllowedError'){start('wav');return;}active=null;report('unavailable');}
+    function start(extension){if(!valid())return;currentExtension=extension;el.src=mediaUrl(name,extension);active={media:el};el.onerror=()=>fail(extension);el.onended=()=>{if(valid()&&active?.media===el){active=null;report('ready');}};try{const result=el.play();return Promise.resolve(result).then(()=>{if(!valid())return;button?.setAttribute('data-last-sound',name);report('playing');},e=>fail(extension,e));}catch(e){fail(extension,e);}}
+    return start('m4a');
+  }
   async function play(name){
     if(!names.includes(name)||!enabled||document.hidden||!['idle'].includes(conversation))return;
     const now=performance.now();if(now-lastAt<800||name===lastName&&now-lastAt<1600)return;
-    lastAt=now;lastName=name;stop();const ticket=generation;unlock();
+    lastAt=now;lastName=name;stop();const ticket=generation;unlock();if(mediaMode)return playMedia(name,ticket);
     try{
       const buffer=await load(name),ctx=getContext();
-      if(ctx?.state==='suspended')await ctx.resume();
+      if(ctx&&ctx.state!=='running')await ctx.resume();
       if(ticket!==generation||!enabled||document.hidden||conversation!=='idle'||ctx?.state!=='running')return;
-      const source=ctx.createBufferSource(),gain=ctx.createGain();source.buffer=buffer;gain.gain.value=.65;source.connect(gain);gain.connect(ctx.destination);active={source,gain};button?.setAttribute('data-audio-state','playing');button?.setAttribute('data-last-sound',name);
-      source.onended=()=>{source.disconnect();gain.disconnect();if(active?.source===source){active=null;button?.setAttribute('data-audio-state','ready');}};source.start();
-    }catch{button?.setAttribute('data-audio-state','unavailable');}
+      const source=ctx.createBufferSource(),gain=ctx.createGain();source.buffer=buffer;gain.gain.value=.65;source.connect(gain);gain.connect(ctx.destination);active={source,gain};button?.setAttribute('data-last-sound',name);
+      source.onended=()=>{source.disconnect();gain.disconnect();if(active?.source===source){active=null;report('ready');}};source.start();report('playing');
+    }catch{report('unavailable');}
   }
   function setEnabled(value){enabled=!!value;stop();try{localStorage.setItem('doudou-sounds',enabled?'on':'off');}catch{}render();if(enabled){unlock();lastAt=-Infinity;play('curious');}}
-  window.DoudouSounds={getContext,unlock,play,stop,isPlaying:()=>!!active,isEnabled:()=>enabled,setEnabled};
+  function setMode(value){stop();mediaMode=value==='media'&&!!window.Audio;try{localStorage.setItem('doudou-audio-mode',mediaMode?'media':'webaudio');}catch{}lastAt=-Infinity;}
+  window.DoudouSounds={getContext,unlock,play,stop,isPlaying:()=>!!active,isEnabled:()=>enabled,setEnabled,setMode,getMode:()=>mediaMode?'media':'webaudio'};
   document.addEventListener('pointerdown',unlock,{once:true,capture:true});
   document.addEventListener('keydown',unlock,{once:true,capture:true});
   document.addEventListener('nuomi:sfx',e=>play(e.detail?.sound));
-  document.addEventListener('nuomi:state',e=>{conversation=e.detail.state==='caring'?'idle':e.detail.state;if(conversation!=='idle')stop();});
+  document.addEventListener('nuomi:state',e=>{conversation=e.detail.state==='caring'?'idle':e.detail.state;if(conversation!=='idle'){stop();try{if(nav?.audioSession?.type==='playback')nav.audioSession.type='auto';}catch{}}});
   document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});
   window.addEventListener('pagehide',stop);
   button?.addEventListener('click',()=>setEnabled(!enabled));
@@ -375,16 +394,21 @@ html,body{touch-action:pan-y}.audio-start{display:flex;align-items:center;justif
 
 (() => {
  'use strict';
- const api=window.DoudouSounds,button=document.getElementById('sound-button'),start=document.getElementById('audio-start');
+ const api=window.DoudouSounds,button=document.getElementById('sound-button'),start=document.getElementById('audio-start'),compat=document.getElementById('audio-compat');
  const speaker=on=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m11 5-5 4H3v6h3l5 4Z"/>'+(on?'<path d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/>':'<path d="m16 9 6 6m0-6-6 6"/>')+'</svg>';
- let unlocked=false,pointerHeld=false,lastAt=-Infinity,voices=new Set();
- function render(){const on=api.isEnabled();button.innerHTML=speaker(on);button.classList.toggle('muted',!on);button.title=on?'声音已开启，点一下静音':'声音已关闭，点一下开启';start.hidden=unlocked&&on&&!pointerHeld;start.innerHTML=speaker(on)+(on?'点一下，听听豆豆':'声音已关闭 · 点这里开启');}
- function unlock(){api.unlock();try{const ctx=api.getContext();if(ctx)Promise.resolve(ctx.resume()).then(()=>{unlocked=ctx.state==='running';render();}).catch(()=>render());}catch{}render();}
- start.addEventListener('pointerdown',()=>{api.setEnabled(true);unlock();});start.addEventListener('click',()=>{api.setEnabled(true);unlock();});button.addEventListener('click',()=>{unlock();if(!api.isEnabled())stop();});
- document.addEventListener('pointerdown',()=>{pointerHeld=true;},{capture:true});document.addEventListener('pointerup',()=>setTimeout(()=>{pointerHeld=false;render();},0),{capture:true});document.addEventListener('pointercancel',()=>{pointerHeld=false;render();},{capture:true});
- document.addEventListener('pointerdown',unlock,{once:true,capture:true});document.addEventListener('keydown',unlock,{once:true,capture:true});
+ let tried=false,lastPreview=-Infinity,lastAt=-Infinity,voices=new Set(),audioState='ready';
+ function render(){const on=api.isEnabled(),media=api.getMode()==='media';button.innerHTML=speaker(on);button.classList.toggle('muted',!on);button.title=on?'声音已开启，点一下静音':'声音已关闭，点一下开启';start.hidden=false;start.innerHTML=speaker(on)+(!on?'开启声音，听听豆豆':audioState==='unavailable'?'声音没启动 · 点此重试':tried?'再听听豆豆':'点一下，听听豆豆');compat.setAttribute('aria-pressed',String(media));compat.textContent=media?'兼容播放已开':'平板兼容播放';}
+ function unlock(){if(api.isEnabled())api.unlock();}
+ function preview(){const now=performance.now();if(now-lastPreview<450)return;lastPreview=now;tried=true;audioState='ready';api.setEnabled(true);render();}
+ start.addEventListener('touchend',e=>{e.preventDefault();preview();},{passive:false});start.addEventListener('click',preview);
+ compat.addEventListener('click',()=>{stop();api.setMode(api.getMode()==='media'?'webaudio':'media');lastPreview=-Infinity;preview();});
+ button.addEventListener('click',()=>{unlock();if(!api.isEnabled())stop();render();});
+ // iPad may interrupt its context after locking, calls, or switching apps.
+ // Re-arm on a completed gesture, rather than trusting a one-time pointerdown.
+ for(const name of ['pointerup','touchend','keyup'])document.addEventListener(name,unlock,{capture:true,passive:true});
+ document.addEventListener('doudou:audio-status',e=>{audioState=e.detail?.state||'ready';render();});
  function stop(){for(const voice of voices){try{voice.stop();voice.disconnect();}catch{}}voices.clear();}
- function foley(kind){if(document.hidden||!api.isEnabled()||!['water','swish','click','chime'].includes(kind))return;const now=performance.now();if(now-lastAt<180)return;lastAt=now;const ctx=api.getContext();if(!ctx||ctx.state!=='running')return;const t=ctx.currentTime,gain=ctx.createGain();gain.gain.setValueAtTime(.0001,t);gain.gain.exponentialRampToValueAtTime(kind==='chime'?.075:.035,t+.012);gain.gain.exponentialRampToValueAtTime(.0001,t+(kind==='chime'?.65:.18));gain.connect(ctx.destination);
+ function foley(kind){if(document.hidden||!api.isEnabled()||!['water','swish','click','chime'].includes(kind))return;const now=performance.now();if(now-lastAt<180)return;lastAt=now;const ctx=api.getContext();if(!ctx||ctx.state!=='running'){unlock();return;}const t=ctx.currentTime,gain=ctx.createGain();gain.gain.setValueAtTime(.0001,t);gain.gain.exponentialRampToValueAtTime(kind==='chime'?.075:.035,t+.012);gain.gain.exponentialRampToValueAtTime(.0001,t+(kind==='chime'?.65:.18));gain.connect(ctx.destination);
   let source;if(kind==='swish'){const buffer=ctx.createBuffer(1,Math.ceil(ctx.sampleRate*.2),ctx.sampleRate),data=buffer.getChannelData(0);let value=0;for(let i=0;i<data.length;i++){value=value*.88+(Math.random()*2-1)*.12;data[i]=value;}source=ctx.createBufferSource();source.buffer=buffer;}else{source=ctx.createOscillator();source.type=kind==='click'?'sine':'triangle';source.frequency.setValueAtTime(kind==='water'?720+Math.random()*220:kind==='click'?480:660,t);source.frequency.exponentialRampToValueAtTime(kind==='water'?290:kind==='click'?240:990,t+(kind==='chime'?.3:.13));}source.connect(gain);voices.add(source);source.onended=()=>{voices.delete(source);source.disconnect();gain.disconnect();};source.start(t);source.stop(t+(kind==='chime'?.7:.21));button.dataset.lastFoley=kind;
  }
  document.addEventListener('doudou:foley',e=>foley(e.detail?.kind));document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});document.addEventListener('nuomi:state',e=>{if(!['idle','caring','waiting'].includes(e.detail?.state))stop();});window.addEventListener('pagehide',stop);

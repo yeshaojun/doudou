@@ -47,6 +47,7 @@ app=app.replace("function yarn(manual=true){", "function yarn(manual=true){if(ma
 app=app.replace("function featherPlay(){", "function featherPlay(){document.dispatchEvent(new CustomEvent('doudou:used',{detail:{item:'feather'}}));");
 const sounds={};for(const name of ['pet','play','eat','sleep','wake','content','curious']){sounds[name]={};for(const extension of ['m4a','wav'])sounds[name][extension]=(await readFile(new URL('web/sounds/'+name+'.'+extension,root))).toString('base64');}
 let soundJS=await read('web/cat-sounds.js');
+soundJS=soundJS.replace("'./sounds/'+name+'.'+extension+'?v=doudou-9'","'data:'+(extension==='wav'?'audio/wav':'audio/mp4')+';base64,'+SOUND_DATA[name][extension]");
 soundJS=soundJS.replace("fetch('./sounds/'+key+'?v=doudou-9',{cache:'force-cache',priority:'low'}).then(res=>{if(!res.ok)throw new Error('sound_unavailable');return res.arrayBuffer();})","Promise.resolve(Uint8Array.from(atob(SOUND_DATA[name][extension]),c=>c.charCodeAt(0)).buffer)");
 soundJS=soundJS.replace('conversation=e.detail.state;',"conversation=e.detail.state==='caring'?'idle':e.detail.state;");
 const stamp=original.match(/<div id="discovery-shade"[\s\S]*?<\/aside>/)[0];

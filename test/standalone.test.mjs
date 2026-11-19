@@ -45,6 +45,6 @@ test('served standalone permits only its exact inline script hashes while legacy
  const {default:worker}=await import('../dist/server/index.js?standalone-test');
  const response=await worker.fetch(new Request('https://example.test/'),{},{}),body=await response.text(),csp=response.headers.get('content-security-policy');
  assert(body.includes('温暖小家'));for(const match of body.matchAll(/<script>([\s\S]*?)<\/script>/g))assert(csp.includes('sha256-'+createHash('sha256').update(match[1]).digest('base64')));
- assert(!/script-src[^;]*unsafe-inline/.test(csp));
+ assert(!/script-src[^;]*unsafe-inline/.test(csp));assert(/media-src[^;]*data:/.test(csp));
  const legacy=await worker.fetch(new Request('https://example.test/chat.html'),{},{});assert((await legacy.text()).includes('talk-button'));
 });
