@@ -14,6 +14,7 @@ const room=await read('standalone/room.svg');
 scene=scene.replace('<g class="sky-details"',room+'<g class="sky-details"');
 scene=scene.replace('<g id="particles"','<g id="mud" pointer-events="none" opacity="0"><path d="m324 419 5-3 7 2 3 6-8 2-6-3Zm139 1 7-3 7 3-3 7-8-1Z" fill="#b89d7d" opacity=".65"/><g fill="#c3ad8c"><circle cx="341" cy="417" r="2.2"/><circle cx="322" cy="426" r="1.7"/><circle cx="480" cy="417" r="2"/></g></g><g id="box-art" pointer-events="none" opacity="0"><path d="m295 350 105-14 110 14-15 105q-90 22-185 0Z" fill="#d2a775" stroke="#aa8058" stroke-width="2"/><path d="m295 350-25-33 130 19 125-22-15 36-110 15Z" fill="#e7c698" stroke="#aa8058" stroke-width="2"/><path d="M400 367v96" stroke="#bd925f" stroke-width="2"/><path d="m356 405 10-9 10 9m-12-1v22" fill="none" stroke="#aa8058" stroke-width="3"/></g><g id="particles"');
 let app=await read('web/app.js');
+app=app.replace("const life=window.DoudouLife?.create({get:$,say,sound,hearts,reduced});","const life=window.DoudouLife?.create({get:$,say,sound,hearts,reduced});document.addEventListener('doudou:prepared-meal',()=>life?.record('meal'));");
 // The standalone world has no speech requests. Keep the existing animated cat engine.
 
 app=app.replace("const running=chasing&&Math.abs(desiredX-catX)>5&&!reduced.matches;","const running=chasing&&Math.abs(desiredX-catX)>5&&!reduced.matches; scene.dataset.running=String(running);");

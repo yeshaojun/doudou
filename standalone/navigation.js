@@ -7,7 +7,7 @@
  function select(section){
   document.dispatchEvent(new CustomEvent('doudou:clear-tools'));
   tabs.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.section===section)));
-  dock.hidden=!['play','care'].includes(section);stories.hidden=section!=='stories';garden.hidden=section!=='growth';
+  dock.dataset.drawer=section;dock.hidden=!['play','care'].includes(section);stories.hidden=section!=='stories';garden.hidden=section!=='growth';
   for(const b of toys){const play=!!b.dataset.native||b.dataset.item==='box';b.hidden=section==='play'?!play:play;}
   $('basket-section-title').textContent=section==='care'?'照顾篮':'玩具篮';
   if(section==='growth'){$('growth-details').hidden=false;$('growth-button').setAttribute('aria-expanded','true');}
